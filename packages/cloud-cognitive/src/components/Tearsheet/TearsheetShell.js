@@ -161,6 +161,130 @@ export const TearsheetShell = React.forwardRef(
       // Include an ActionSet if and only if one or more actions is given.
       const includeActions = actions && actions?.length > 0;
 
+      const renderTearsheetBody = () => {
+        return (
+          <>
+            {includeHeader && (
+              <ModalHeader
+                className={cx(`${bc}__header`, {
+                  [`${bc}__header--with-close-icon`]: effectiveHasCloseIcon,
+                  [`${bc}__header--with-nav`]: navigation,
+                })}
+                closeClassName={cx({
+                  [`${bc}__header--no-close-icon`]: !effectiveHasCloseIcon,
+                })}
+                iconDescription={closeIconDescription}
+              >
+                <Wrap className={`${bc}__header-content`}>
+                  <Wrap className={`${bc}__header-fields`}>
+                    {/* we create the label and title here instead of passing them
+                        as modal header props so we can wrap them in layout divs */}
+                    <Wrap element="h2" className={`${bcModalHeader}__label`}>
+                      {label}
+                    </Wrap>
+                    <Wrap
+                      element="h3"
+                      className={cx(
+                        `${bcModalHeader}__heading`,
+                        `${bc}__heading`
+                      )}
+                    >
+                      {title}
+                    </Wrap>
+                    <Wrap className={`${bc}__header-description`}>
+                      {description}
+                    </Wrap>
+                  </Wrap>
+                  <Wrap className={`${bc}__header-actions`}>
+                    {headerActions}
+                  </Wrap>
+                </Wrap>
+                <Wrap className={`${bc}__header-navigation`}>{navigation}</Wrap>
+              </ModalHeader>
+            )}
+            <Wrap element={ModalBody} className={`${bc}__body`}>
+              <Wrap
+                className={cx({
+                  [`${bc}__influencer`]: true,
+                  [`${bc}__influencer--wide`]: influencerWidth === 'wide',
+                })}
+                neverRender={influencerPosition === 'right'}
+              >
+                {influencer}
+              </Wrap>
+              <Wrap className={`${bc}__right`}>
+                <Wrap alwaysRender={includeActions} className={`${bc}__main`}>
+                  <Wrap
+                    alwaysRender={influencer && influencerPosition === 'right'}
+                    className={`${bc}__content`}
+                  >
+                    {children}
+                  </Wrap>
+                  <Wrap
+                    className={cx({
+                      [`${bc}__influencer`]: true,
+                      [`${bc}__influencer--wide`]: influencerWidth === 'wide',
+                    })}
+                    neverRender={influencerPosition !== 'right'}
+                  >
+                    {influencer}
+                  </Wrap>
+                </Wrap>
+                {includeActions && (
+                  <Wrap className={`${bc}__button-container`}>
+                    <ActionSet
+                      actions={actions}
+                      buttonSize={size === 'wide' ? 'xl' : null}
+                      className={`${bc}__buttons`}
+                      size={size === 'wide' ? 'max' : 'lg'}
+                    />
+                  </Wrap>
+                )}
+              </Wrap>
+            </Wrap>
+            <div className={`${bc}__resize-detector`} ref={resizer} />
+          </>
+        );
+      };
+
+      if (depth > 1 && position !== depth) {
+        return (
+          <div
+            className={cx(bc, className, `${carbon.prefix}--modal`, {
+              [`${bc}--stacked-${position}-of-${depth}`]:
+                // Don't apply this on the initial open of a single tearsheet.
+                depth > 1 || (depth === 1 && prevDepth.current > 1),
+              [`${bc}--wide`]: size === 'wide',
+              [`${bc}--narrow`]: size !== 'wide',
+              [`is-visible`]: position > 0,
+            })}
+            style={{
+              [`--${bc}--stacking-scale-factor-single`]: (width - 32) / width,
+              [`--${bc}--stacking-scale-factor-double`]: (width - 64) / width,
+            }}
+            ref={ref}
+            size="sm"
+            role="presentation"
+          >
+            <div
+              className={cx(
+                `${carbon.prefix}--modal-container`,
+                `${carbon.prefix}--modal-container--sm`,
+                `${bc}__container`,
+                {
+                  [`${bc}__container--lower`]: verticalPosition === 'lower',
+                }
+              )}
+              aria-label={title}
+              role="dialog"
+              aria-modal
+            >
+              {renderTearsheetBody()}
+            </div>
+          </div>
+        );
+      }
+
       return (
         <ComposedModal
           {
@@ -186,83 +310,7 @@ export const TearsheetShell = React.forwardRef(
           preventCloseOnClickOutside={!isPassive}
           size="sm"
         >
-          {includeHeader && (
-            <ModalHeader
-              className={cx(`${bc}__header`, {
-                [`${bc}__header--with-close-icon`]: effectiveHasCloseIcon,
-                [`${bc}__header--with-nav`]: navigation,
-              })}
-              closeClassName={cx({
-                [`${bc}__header--no-close-icon`]: !effectiveHasCloseIcon,
-              })}
-              iconDescription={closeIconDescription}
-            >
-              <Wrap className={`${bc}__header-content`}>
-                <Wrap className={`${bc}__header-fields`}>
-                  {/* we create the label and title here instead of passing them
-                      as modal header props so we can wrap them in layout divs */}
-                  <Wrap element="h2" className={`${bcModalHeader}__label`}>
-                    {label}
-                  </Wrap>
-                  <Wrap
-                    element="h3"
-                    className={cx(
-                      `${bcModalHeader}__heading`,
-                      `${bc}__heading`
-                    )}
-                  >
-                    {title}
-                  </Wrap>
-                  <Wrap className={`${bc}__header-description`}>
-                    {description}
-                  </Wrap>
-                </Wrap>
-                <Wrap className={`${bc}__header-actions`}>{headerActions}</Wrap>
-              </Wrap>
-              <Wrap className={`${bc}__header-navigation`}>{navigation}</Wrap>
-            </ModalHeader>
-          )}
-          <Wrap element={ModalBody} className={`${bc}__body`}>
-            <Wrap
-              className={cx({
-                [`${bc}__influencer`]: true,
-                [`${bc}__influencer--wide`]: influencerWidth === 'wide',
-              })}
-              neverRender={influencerPosition === 'right'}
-            >
-              {influencer}
-            </Wrap>
-            <Wrap className={`${bc}__right`}>
-              <Wrap alwaysRender={includeActions} className={`${bc}__main`}>
-                <Wrap
-                  alwaysRender={influencer && influencerPosition === 'right'}
-                  className={`${bc}__content`}
-                >
-                  {children}
-                </Wrap>
-                <Wrap
-                  className={cx({
-                    [`${bc}__influencer`]: true,
-                    [`${bc}__influencer--wide`]: influencerWidth === 'wide',
-                  })}
-                  neverRender={influencerPosition !== 'right'}
-                >
-                  {influencer}
-                </Wrap>
-              </Wrap>
-              {includeActions && (
-                <Wrap className={`${bc}__button-container`}>
-                  <ActionSet
-                    actions={actions}
-                    buttonSize={size === 'wide' ? 'xl' : null}
-                    className={`${bc}__buttons`}
-                    size={size === 'wide' ? 'max' : 'lg'}
-                  />
-                </Wrap>
-              )}
-            </Wrap>
-          </Wrap>
-          <div className={`${bc}__resize-detector`} ref={resizer} />
+          {renderTearsheetBody()}
         </ComposedModal>
       );
     } else {

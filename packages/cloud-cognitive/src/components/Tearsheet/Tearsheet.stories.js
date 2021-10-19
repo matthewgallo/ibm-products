@@ -260,9 +260,15 @@ const StackedTemplate = ({ actions, ...args }) => {
         title="Tearsheet #1"
         open={open1}
         onClose={() => setOpen1(false)}
+        selectorPrimaryFocus="#stacked-input-1"
       >
         <div className="tearsheet-stories__dummy-content-block">
           Main content 1
+          <Button onClick={() => setOpen2(!open2)}>Toggle #2</Button>
+          <TextInput
+            id="stacked-input-1"
+            labelText="Enter an important value here"
+          />
         </div>
       </Tearsheet>
       <Tearsheet
@@ -271,9 +277,14 @@ const StackedTemplate = ({ actions, ...args }) => {
         title="Tearsheet #2"
         open={open2}
         onClose={() => setOpen2(false)}
+        selectorPrimaryFocus="#stacked-input-2"
       >
         <div className="tearsheet-stories__dummy-content-block">
           Main content 2
+          <TextInput
+            id="stacked-input-2"
+            labelText="Enter an important value here"
+          />
         </div>
       </Tearsheet>
       <Tearsheet
@@ -285,6 +296,10 @@ const StackedTemplate = ({ actions, ...args }) => {
       >
         <div className="tearsheet-stories__dummy-content-block">
           Main content 3
+          <TextInput
+            id="stacked-input-3"
+            labelText="Enter an important value here"
+          />
         </div>
       </Tearsheet>
     </>

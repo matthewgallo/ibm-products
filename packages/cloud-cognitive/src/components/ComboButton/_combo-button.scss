@@ -11,9 +11,6 @@
 @import 'carbon-components/scss/components/overflow-menu/overflow-menu';
 
 @include exports($name: combo-button) {
-  /// Sets the prefix for all IBM Security-specific classes.
-  /// @access private
-  /// @type String
   $c4p--prefix: #{$pkg-prefix};
 
   .#{$c4p--prefix}--combo-button {
@@ -53,7 +50,7 @@
     pointer-events: none;
   }
 
-  .#{$c4p--prefix}--combo-button__overflow-menu__list {
+  .#{$c4p--prefix}--combo-button__overflow-menu__list.#{$prefix}--overflow-menu-options {
     width: 100%;
   }
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-rc.0](https://github.com/carbon-design-system/ibm-cloud-cognitive/compare/@carbon/ibm-cloud-cognitive-core@0.37.0...@carbon/ibm-cloud-cognitive-core@1.0.0-rc.0) (2022-08-15)
+
+
+### Bug Fixes
+
+* use latest Carbon react to fix selectorsFloatingMenus prop type issue on v11 branch ([#2152](https://github.com/carbon-design-system/ibm-cloud-cognitive/issues/2152)) ([dc99419](https://github.com/carbon-design-system/ibm-cloud-cognitive/commit/dc9941935d68c595c99b81b92f46bb9fa1acc210))
+
+
+
+
+
 # [0.37.0](https://github.com/carbon-design-system/ibm-cloud-cognitive/compare/@carbon/ibm-cloud-cognitive-core@0.36.0...@carbon/ibm-cloud-cognitive-core@0.37.0) (2022-08-02)
 
 

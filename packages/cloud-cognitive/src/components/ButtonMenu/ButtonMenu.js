@@ -6,15 +6,23 @@
  */
 
 // Import portions of React that are needed.
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useClickOutside } from '../../global/js/hooks';
+import { ChevronDown16, ChevronUp16 } from '@carbon/icons-react';
 
 // Other standard imports.
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { pkg, carbon } from '../../settings';
+import { pkg } from '../../settings';
 
 // Carbon and package components we use.
-import { Button, OverflowMenu } from 'carbon-components-react';
+import {
+  Button,
+  unstable_Menu as Menu,
+  unstable_MenuItem as MenuItem,
+  unstable_MenuDivider as MenuDivider,
+  unstable_MenuRadioGroup as MenuRadioGroup,
+} from 'carbon-components-react';
 
 // The block part of our conventional BEM class names (blockClass__E--M).
 const blockClass = `${pkg.prefix}--button-menu`;
@@ -26,10 +34,12 @@ const componentName = 'ButtonMenu';
 const defaults = {
   size: 'default',
   kind: 'primary',
+  onClose: () => {},
+  onMenuButtonClick: () => {},
 };
 
 /**
- * Combining a standard button with an overflow menu, this component appears
+ * Combining a standard button with the Carbon menu, this component appears
  * as a button and has all the usual carbon Button props and rendering, but
  * acts as an overflow menu when clicked. The ButtonMenu component can contain
  * zero to many ButtonMenuItem, which is identical to the carbon
@@ -47,47 +57,100 @@ export let ButtonMenu = React.forwardRef(
       label,
       menuOptionsClass,
       renderIcon: Icon,
+      onClose = defaults.onClose,
+      onMenuButtonClick = defaults.onMenuButtonClick,
       size = defaults.size,
 
       // Collect any other property values passed in.
       ...rest
     },
     ref
-  ) => (
-    <OverflowMenu
-      {
-        // Pass through any other property values as HTML attributes.
-        ...rest
+  ) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuCoords, setMenuCoords] = useState({});
+    const outerButtonMenuRef = useRef();
+    const localRef = ref || outerButtonMenuRef;
+    const menuTrigger = useRef();
+
+    useClickOutside(localRef, () => {
+      onClose();
+    });
+
+    useEffect(() => {
+      if (menuTrigger?.current) {
+        const triggerCoords = menuTrigger?.current.getBoundingClientRect();
+        // console.log(menuTrigger);
+        // console.log(triggerCoords, menuTrigger?.current?.offsetHeight);
+        setMenuCoords({
+          x: triggerCoords.x,
+          y: triggerCoords.y,
+          height: triggerCoords.height
+        });
       }
+    }, [menuOpen]);
+
+    // console.log(menuCoords);
+
+    return (
+    <div
+      {...rest}
+      ref={localRef}
       className={cx(
         blockClass, // Apply the block class to the main HTML element
-        className // Apply any supplied class names to the main HTML element.
+        className, // Apply any supplied class names to the main HTML element.
+        {
+          [`${blockClass}__${size}`]: size,
+        }
       )}
-      menuOptionsClass={cx(`${blockClass}__options`, menuOptionsClass)}
-      renderIcon={() => (
-        <div
-          className={cx([
-            `${blockClass}__trigger`,
-            `${carbon.prefix}--btn`,
-            `${carbon.prefix}--btn--${kind}`,
-            `${carbon.prefix}--btn--${size}`,
-          ])}
-        >
-          {label}
-          {Icon && (
-            <Icon
-              aria-hidden="true"
-              aria-label={iconDescription}
-              className={`${carbon.prefix}--btn__icon`}
-            />
-          )}
-        </div>
-      )}
-      innerRef={ref}
     >
-      {children}
-    </OverflowMenu>
-  )
+      <Button
+        iconDescription={iconDescription}
+        size={size}
+        kind={kind}
+        renderIcon={
+          Icon ? Icon : open ? ChevronUp16 : ChevronDown16
+        }
+        onClick={() => {
+          if (!menuOpen) {
+            setMenuOpen(true);
+          }
+          // setMenuOpen(prev => {
+          //   console.log(prev);
+          //   return !prev;
+          // });
+          onMenuButtonClick?.()
+        }}
+        className={cx(`${blockClass}__trigger`)}
+        ref={menuTrigger}
+      >
+        {label}
+      </Button>
+      <Menu
+        open={menuOpen}
+        className="testing-wutttttt"
+        onClose={() => {
+          console.log('close menu fn?');
+          setMenuOpen(false);
+        }}
+        size="md"
+        x={menuCoords?.x + 1}
+        y={menuCoords?.y + menuCoords?.height}
+      >
+        <MenuItem label="Share with">
+          <MenuRadioGroup
+            label="Share with"
+            items={['None', 'Product team', 'Organization', 'Company']}
+            initialSelectedItem="Product team"
+          />
+        </MenuItem>
+        <MenuDivider />
+        <MenuItem label="Cut" shortcut="⌘X" />
+        <MenuItem label="Copy" shortcut="⌘C" />
+        <MenuItem label="Copy path" shortcut="⌥⌘C" />
+        <MenuItem label="Paste" shortcut="⌘V" disabled />
+      </Menu>
+    </div>
+  )}
 );
 
 // Return a placeholder if not released and not enabled by feature flag
@@ -134,14 +197,24 @@ ButtonMenu.propTypes = {
   menuOptionsClass: PropTypes.string,
 
   /**
+   * The setter fn for the open state
+   */
+  onClose: PropTypes.func,
+
+  /**
+   * The onClick fn for the menu button
+   */
+  onMenuButtonClick: PropTypes.func,
+
+  /**
    * Optional prop to allow overriding the icon rendering.
    * Can be a React component class
    */
   renderIcon: Button.propTypes.renderIcon,
 
   /**
-   * The size of the button for the menu trigger. The values can be any valid
+   * The size of the button/button menu items for the menu trigger. The values can be any valid
    * value for the carbon Button component 'size' prop.
    */
-  size: Button.propTypes.size,
+  size: Menu.propTypes.size,
 };

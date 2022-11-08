@@ -9,7 +9,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Highlight from 'react-highlighter';
 import pluralize from 'pluralize';
-import CreatableSelect from 'react-select/creatable';
+import Creatable from 'react-select/creatable';
 import { Tag } from 'carbon-components-react';
 import { Close16, Search16 } from '@carbon/icons-react';
 
@@ -173,7 +173,7 @@ const IdeFilter = ({
           description={placeholderText}
         />
       )}
-      <CreatableSelect
+      <Creatable
         components={{
           MultiValueContainer,
           MultiValueRemove,

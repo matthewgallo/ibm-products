@@ -13,6 +13,7 @@ const COLUMN_RESIZE_START = 'columnStartResizing';
 const COLUMN_RESIZING = 'columnResizing';
 const COLUMN_RESIZE_END = 'columnDoneResizing';
 const INIT = 'init';
+const localStorageKey = `${pkg.prefix}--datagrid-col-sizing`;
 
 export const handleColumnResizeStartEvent = (dispatch) => {
   dispatch({ type: COLUMN_RESIZE_START });
@@ -51,9 +52,7 @@ export const handleColumnResizingEvent = (
 export const stateReducer = (newState, action) => {
   switch (action.type) {
     case INIT: {
-      const localStorageColSizes = getLocalStorageItem(
-        `${pkg.prefix}--datagrid-col-sizing`
-      );
+      const localStorageColSizes = getLocalStorageItem(localStorageKey);
       Object.keys(localStorageColSizes.columnResizing.columnWidths).forEach(
         (key) => {
           if (localStorageColSizes.columnResizing.columnWidths[key] === null) {
@@ -97,11 +96,9 @@ export const stateReducer = (newState, action) => {
       };
     }
     case COLUMN_RESIZE_END: {
-      const localStorageColSizes = getLocalStorageItem(
-        `${pkg.prefix}--datagrid-col-sizing`
-      );
+      const localStorageColSizes = getLocalStorageItem(localStorageKey);
       setLocalStorageItem(
-        `${pkg.prefix}--datagrid-col-sizing`,
+        localStorageKey,
         localStorageColSizes,
         { ...newState, isResizing: false }
       );

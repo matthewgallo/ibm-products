@@ -11,6 +11,8 @@ import { px } from '@carbon/layout';
 import { selectionColumnId } from '../common-column-ids';
 import cx from 'classnames';
 import { pkg, carbon } from '../../../settings';
+import { AICellIndicator } from './addons/AICellIndicator/AICellIndicator';
+import { AISlug } from './addons/AISlug/AISlug';
 
 const blockClass = `${pkg.prefix}--datagrid`;
 
@@ -105,7 +107,10 @@ const DatagridRow = (datagridState) => {
     [`${blockClass}__carbon-row-expanded`]: row.isExpanded,
     [`${blockClass}__carbon-row-expandable`]: row.canExpand,
     [`${carbon.prefix}--data-table--selected`]: row.isSelected,
+    [`${blockClass}__ai-generated--row`]: row.original.ai_generated_row,
   });
+
+  console.log(row);
 
   return (
     <>
@@ -119,8 +124,10 @@ const DatagridRow = (datagridState) => {
         onBlur={focusRemover}
         onKeyUp={handleOnKeyUp}
       >
+        {row.original.ai_generated_row && <AISlug />}
         {row.cells.map((cell, index) => {
           const cellProps = cell.getCellProps({ role: false });
+          const { ai_generated_cols: aiGeneratedCols  } = row.original || {};
           const { children, ...restProps } = cellProps;
           const content = children || (
             <>
@@ -137,11 +144,13 @@ const DatagridRow = (datagridState) => {
               className={cx(`${blockClass}__cell`, {
                 [`${blockClass}__expandable-row-cell`]:
                   row.canExpand && index === 0,
+                [`${blockClass}__ai-generated-cell`]: aiGeneratedCols.includes(cell.column.id),
               })}
               {...restProps}
               key={cell.column.id}
             >
               {content}
+              {aiGeneratedCols.includes(cell.column.id) && <AICellIndicator />}
             </TableCell>
           );
         })}

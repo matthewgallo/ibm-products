@@ -56,6 +56,7 @@ const s = [
               'c/Datagrid/Extensions/EditableCell',
               'c/Datagrid/Extensions/ColumnCustomization',
               'c/Datagrid/Extensions/Skeleton',
+              'c/Datagrid/Extensions/AIExplorations',
             ],
           },
         ],

@@ -22,11 +22,12 @@ const getRandomInteger = (min, max, decimalPlaces) => {
   return Math.floor(randomNumber * power) / power;
 };
 
-export const makeData = (...lens) => {
+export const makeData = (lens, options) => {
+  const dataLength = [lens];
   const makeDataLevel = (depth = 0) => {
-    const len = lens[depth];
-    return range(len).map(() => ({
-      ...newPerson(),
+    const len = dataLength[depth];
+    return range(len).map((index) => ({
+      ...newPerson(index, options),
       subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
     }));
   };
@@ -77,7 +78,33 @@ const renderDocLink = () => {
   return docLinkObj;
 };
 
-const newPerson = () => {
+const getAIGeneratedColumns = (index, options) => {
+  if (options.aiType === 'cell') {
+    if (index === 0 || index === 3) {
+      return ['firstName']
+    }
+    if (index === 1) {
+      return ['lastName']
+    }
+    if (index === 2 || index === 4) {
+      return ['someone1']
+    }
+    return [];
+  }
+  return [];
+}
+
+const getAIGeneratedRow = (index, options) => {
+  if (options.aiType === 'row') {
+    if (index === 1 || index === 3) {
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+const newPerson = (index, options) => {
   const statusChance = Math.random();
   const roleChance = Math.random();
   const activeChance = Math.random();
@@ -144,6 +171,8 @@ const newPerson = () => {
     bonus: `$\r${getRandomInteger(100, 500, 2)}`,
     passwordStrength: getPasswordStrength(),
     doc_link: renderDocLink(),
+    ai_generated_cols: getAIGeneratedColumns(index, options),
+    ai_generated_row: getAIGeneratedRow(index, options),
   };
 };
 

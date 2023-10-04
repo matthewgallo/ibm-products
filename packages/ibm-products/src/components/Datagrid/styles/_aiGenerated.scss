@@ -1,0 +1,77 @@
+//
+// Copyright IBM Corp. 2023, 2023
+//
+// This source code is licensed under the Apache-2.0 license found in the
+// LICENSE file in the root directory of this source tree.
+//
+
+@use '@carbon/styles/scss/theme' as *;
+@use '@carbon/type/scss/font-family';
+@use '@carbon/styles/scss/type';
+@use '@carbon/styles/scss/spacing' as *;
+@use './variables';
+@use '../../../global/styles/project-settings' as c4p-settings;
+
+.#{variables.$block-class}__grid-container
+  table.#{variables.$block-class}__vertical-align-center
+  .#{variables.$block-class}__cell.#{variables.$block-class}__ai-generated-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.#{variables.$block-class}__ai-generated-cell-indicator {
+  display: flex;
+  align-items: center;
+  @include type.type-style('label-01');
+  @include font-family.font-weight('semibold');
+
+  /* stylelint-disable-next-line carbon/layout-token-use */
+  transform: translateX(-8px);
+}
+
+.#{variables.$block-class}__ai-generate-cell-indicator--block {
+  display: block;
+  width: 0.25rem;
+  height: 0.25rem;
+  margin-right: $spacing-02;
+  background-color: $text-primary;
+  transform: rotate(45deg);
+}
+
+.#{variables.$block-class}
+  .#{c4p-settings.$carbon-prefix}--data-table
+  .#{variables.$block-class}__ai-generated--row {
+  position: relative;
+  border-left: 1px solid $border-subtle;
+  background-color: $layer-02;
+  &:hover {
+    border-left: 1px solid $border-strong;
+    background-color: $layer-hover;
+  }
+  td {
+    background-color: transparent;
+  }
+}
+
+.#{variables.$block-class}__ai-slug {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: $spacing-05;
+  height: $spacing-05;
+  align-items: center;
+  justify-content: center;
+  @include type.type-style('label-01');
+  @include font-family.font-weight('semibold');
+  /* stylelint-disable-next-line carbon/type-token-use */
+  font-size: 9px;
+
+  border-radius: 4px;
+  /* stylelint-disable-next-line prettier/prettier */
+  background: linear-gradient(134.59deg, rgba(255, 255, 255, 0.9) 1.39%, rgba(255, 255, 255, 0) 97.92%), rgba(145, 145, 145, 0.8);
+  /* stylelint-disable-next-line prettier/prettier */
+  box-shadow: -2px 1px 3px rgba(0, 0, 0, 0.15), -5px 9px 14px -1px rgba(0, 0, 0, 0.15);
+}

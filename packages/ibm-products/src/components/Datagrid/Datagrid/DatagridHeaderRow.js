@@ -18,6 +18,7 @@ import {
   handleColumnResizeStartEvent,
   handleColumnResizingEvent,
 } from './addons/stateReducer';
+import { AISlug } from './addons/AISlug/AISlug';
 
 const blockClass = `${pkg.prefix}--datagrid`;
 
@@ -33,6 +34,9 @@ const getAccessibilityProps = (header) => {
 };
 
 const HeaderRow = (datagridState, headRef, headerGroup) => {
+
+  const { columns, tableId, isFetching } = datagridState;
+
   // Used to measure the height of the table and uses that value
   // to display a vertical line to indicate the column you are resizing
   useEffect(() => {
@@ -113,6 +117,45 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datagridState.state.isResizing]);
 
+  
+  useEffect(() => {
+    if (!isFetching) {
+      const aiGeneratedCols = columns.filter(col => col.aiGenerated);
+      console.log(aiGeneratedCols);
+      const buildAIGeneratedColBackground = () => {
+        const allAIGeneratedColumns = document.querySelectorAll(`#${tableId} .${blockClass}__isAIGeneratedColumn`);
+        const tableContainer = document.querySelector(`#${tableId} .${blockClass}__table-container`);
+        const gridTable = document.querySelector(`#${tableId} table`);
+        const innerScrollWrapper = gridTable.querySelector(`.${blockClass}__inner-table-scroll-wrapper`);
+        const tableCoords = tableContainer.getBoundingClientRect();
+        const gridTableLeft = tableCoords.left;
+        Array.from(allAIGeneratedColumns).forEach(aiCol => {
+          const aiColCoords = aiCol.getBoundingClientRect();
+          const newLeftPosition = aiColCoords.left - gridTableLeft ;
+          const clonedAIGeneratedCol = aiCol.cloneNode();
+          clonedAIGeneratedCol.classList.add(`${blockClass}__ai-generate-col-background`);
+          clonedAIGeneratedCol.style.position = 'absolute';
+          clonedAIGeneratedCol.style.top = 0;
+          clonedAIGeneratedCol.style.left = `${newLeftPosition}px`;
+          clonedAIGeneratedCol.style.height = `${tableContainer.offsetHeight - 16}px`;
+          clonedAIGeneratedCol.setAttribute('data-column-id', '')
+          innerScrollWrapper.appendChild(clonedAIGeneratedCol);
+        });
+      }
+      setTimeout(() => {
+        buildAIGeneratedColBackground();
+      }, 50);
+    }
+
+  }, [tableId, isFetching, columns]);
+
+  const isAIGeneratedColumn = (index) => {
+    if (columns[index]?.aiGenerated) {
+      return true;
+    }
+    return false;
+  }
+
   return (
     <TableRow
       {...headerGroup.getHeaderGroupProps({ role: false })}
@@ -145,13 +188,16 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
                   [`${blockClass}__sortableColumn`]:
                     datagridState.isTableSortable,
                   [`${blockClass}__isSorted`]: header.isSorted,
+                  [`${blockClass}__isAIGeneratedColumn`]: isAIGeneratedColumn(index)
                 },
                 header.getHeaderProps().className
               )}
               key={header.id}
+              data-column-id={header.id}
               {...getAccessibilityProps(header)}
             >
               {header.render('Header')}
+              {isAIGeneratedColumn(index) && <AISlug className={`${blockClass}__slug--header`} />}
               {header.getResizerProps && (
                 <>
                   <input

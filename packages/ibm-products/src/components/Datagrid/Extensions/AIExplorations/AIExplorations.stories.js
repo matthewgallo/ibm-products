@@ -44,6 +44,7 @@ const defaultHeader = [
   {
     Header: 'Last Name',
     accessor: 'lastName',
+    aiGenerated: true,
   },
   {
     Header: 'Age',
@@ -58,6 +59,7 @@ const defaultHeader = [
   {
     Header: 'Someone 1',
     accessor: 'someone1',
+    aiGenerated: true,
   },
   {
     Header: 'Someone 2',
@@ -160,6 +162,7 @@ const AICellTableExample = ({ aiType, ...args }) => {
   const rows = React.useMemo(() => data, [data]);
 
   const datagridState = useDatagrid({
+    aiGenerated: true,
     columns,
     data: rows,
     initialState: {
@@ -179,6 +182,14 @@ const AICellTableWrapper = ({ aiType = 'cell', ...args }) => {
 };
 
 const AIRowTableWrapper = ({ aiType = 'row', ...args }) => {
+  return <AICellTableExample aiType={aiType} defaultGridProps={{ ...args }} />;
+};
+
+const AIColTableWrapper = ({ aiType = 'col', ...args }) => {
+  return <AICellTableExample aiType={aiType} defaultGridProps={{ ...args }} />;
+};
+
+const AITableWrapper = ({ aiType = 'table', ...args }) => {
   return <AICellTableExample aiType={aiType} defaultGridProps={{ ...args }} />;
 };
 
@@ -203,6 +214,32 @@ export const AICell = prepareStory(AICellTableWrapper, {
 const aiRowStoryName = 'Row';
 export const AIRow = prepareStory(AIRowTableWrapper, {
   storyName: aiRowStoryName,
+  argTypes: {
+    gridTitle: ARG_TYPES.gridTitle,
+    gridDescription: ARG_TYPES.gridDescription,
+    useDenseHeader: ARG_TYPES.useDenseHeader,
+  },
+  args: {
+    ...basicUsageControlProps,
+  },
+});
+
+const aiColumnStoryName = 'Column';
+export const AIColumn = prepareStory(AIColTableWrapper, {
+  storyName: aiColumnStoryName,
+  argTypes: {
+    gridTitle: ARG_TYPES.gridTitle,
+    gridDescription: ARG_TYPES.gridDescription,
+    useDenseHeader: ARG_TYPES.useDenseHeader,
+  },
+  args: {
+    ...basicUsageControlProps,
+  },
+});
+
+const aiTableStoryName = 'Table';
+export const AITable = prepareStory(AITableWrapper, {
+  storyName: aiTableStoryName,
   argTypes: {
     gridTitle: ARG_TYPES.gridTitle,
     gridDescription: ARG_TYPES.gridDescription,

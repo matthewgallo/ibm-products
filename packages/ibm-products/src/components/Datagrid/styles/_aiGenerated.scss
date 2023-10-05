@@ -74,4 +74,47 @@
   background: linear-gradient(134.59deg, rgba(255, 255, 255, 0.9) 1.39%, rgba(255, 255, 255, 0) 97.92%), rgba(145, 145, 145, 0.8);
   /* stylelint-disable-next-line prettier/prettier */
   box-shadow: -2px 1px 3px rgba(0, 0, 0, 0.15), -5px 9px 14px -1px rgba(0, 0, 0, 0.15);
+  color: $text-primary;
+
+  &.#{variables.$block-class}__slug--header {
+    position: relative;
+  }
+}
+
+.#{variables.$block-class}__grid-container-with-ai-generated-cols
+  .#{c4p-settings.$carbon-prefix}--data-table
+  .#{variables.$block-class}__ai-generate-col-background {
+  pointer-events: none;
+  background-color: transparent;
+  // background: linear-gradient(180deg, hsla(0deg, 0%, 100%, 0.25) 25%, hsla(213, 92%, 76%, 0.25) 100%);
+  background: url('/public/aura.png');
+  // background: linear-gradient(
+  //   201.6deg,
+  //   rgba(255, 255, 255, 0) 112.03%,
+  //   rgba(255, 255, 255, 0.2) 112.03%
+  // ),
+  // linear-gradient(
+  //   206.33deg,
+  //   rgba(255, 255, 255, 0) 58.42%,
+  //   rgba(255, 255, 255, 0.1) 100.87%
+  // ),
+  // linear-gradient(
+  //   228.18deg,
+  //   rgba(226, 240, 255, 0) 33%,
+  //   rgba(222, 237, 255, 0.1) 114.7%
+  // );
+  // transform: rotate(-180deg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.#{variables.$block-class}__grid-container-with-ai-generated-cols thead {
+  position: relative;
+  overflow: hidden;
+}
+
+.#{variables.$block-class}__grid-container-with-ai-generated-cols
+  .#{variables.$block-class}__inner-table-scroll-wrapper {
+  position: relative;
+  display: grid;
 }

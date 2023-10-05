@@ -1,11 +1,13 @@
 import React from 'react'
+import cx from 'classnames';
 import { pkg } from '../../../../../settings';
 
 const blockClass = `${pkg.prefix}--datagrid`;
 
-export const AISlug = () => {
+// eslint-disable-next-line react/prop-types
+export const AISlug = ({ className }) => {
   return (
-    <span className={`${blockClass}__ai-slug`}>
+    <span className={cx(className, `${blockClass}__ai-slug`)}>
       AI
     </span>
   )

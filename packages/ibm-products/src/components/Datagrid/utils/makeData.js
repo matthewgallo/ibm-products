@@ -79,7 +79,7 @@ const renderDocLink = () => {
 };
 
 const getAIGeneratedColumns = (index, options) => {
-  if (options.aiType === 'cell') {
+  if (options?.aiType === 'cell') {
     if (index === 0 || index === 3) {
       return ['firstName']
     }
@@ -95,7 +95,7 @@ const getAIGeneratedColumns = (index, options) => {
 }
 
 const getAIGeneratedRow = (index, options) => {
-  if (options.aiType === 'row') {
+  if (options?.aiType === 'row') {
     if (index === 1 || index === 3) {
       return true;
     }

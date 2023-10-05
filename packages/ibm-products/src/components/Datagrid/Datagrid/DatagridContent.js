@@ -52,6 +52,8 @@ export const DatagridContent = ({ datagridState, title }) => {
     state,
     page,
     rows,
+    columns,
+    aiGenerated
   } = datagridState;
 
   const contentRows = (DatagridPagination && page) || rows;
@@ -108,8 +110,16 @@ export const DatagridContent = ({ datagridState, title }) => {
         }
         title={title}
       >
-        {!withVirtualScroll && <DatagridHead {...datagridState} />}
-        <DatagridBody {...datagridState} rows={contentRows} />
+        {containsAIGeneratedColumns()
+          ? <div className={`${blockClass}__inner-table-scroll-wrapper`}>
+            {!withVirtualScroll && <DatagridHead {...datagridState} />}
+            <DatagridBody {...datagridState} rows={contentRows} />
+          </div>
+          : <>
+          {!withVirtualScroll && <DatagridHead {...datagridState} />}
+          <DatagridBody {...datagridState} rows={contentRows} />
+          </>
+        }
       </Table>
     );
   };
@@ -151,6 +161,13 @@ export const DatagridContent = ({ datagridState, title }) => {
       />
     );
 
+  const containsAIGeneratedColumns = () => {
+    if (columns.filter(col => col.aiGenerated && col.aiGenerated.length)) {
+      return true;
+    }
+    return false;
+  }
+
   return (
     <>
       <TableContainer
@@ -164,6 +181,7 @@ export const DatagridContent = ({ datagridState, title }) => {
           {
             [`${blockClass}__grid-container-grid-active`]: gridActive,
             [`${blockClass}__grid-container-inline-edit`]: withInlineEdit,
+            [`${blockClass}__grid-container-with-ai-generated-cols`]: containsAIGeneratedColumns(),
             [`${blockClass}__grid-container-grid-active--without-toolbar`]:
               withInlineEdit && !DatagridActions,
           }
@@ -238,6 +256,7 @@ DatagridContent.propTypes = {
     gridDescription: PropTypes.node,
     page: PropTypes.arrayOf(PropTypes.object),
     rows: PropTypes.arrayOf(PropTypes.object),
+    columns: PropTypes.arrayOf(PropTypes.object),
     tableId: PropTypes.string,
     totalColumnsWidth: PropTypes.number,
     gridRef: PropTypes.object,

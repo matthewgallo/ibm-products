@@ -6,7 +6,7 @@
  */
 
 // @flow
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import { TableHeader, TableRow } from '@carbon/react';
 import { px } from '@carbon/layout';
@@ -19,6 +19,8 @@ import {
   handleColumnResizingEvent,
 } from './addons/stateReducer';
 import { AISlug } from './addons/AISlug/AISlug';
+
+export const INCREMENT_AMOUNT = 2;
 
 const blockClass = `${pkg.prefix}--datagrid`;
 
@@ -75,8 +77,6 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
     }
   }, [datagridState.rowSize, datagridState.tableId, datagridState]);
 
-  const [incrementAmount] = useState(2);
-
   const getClientXPosition = (event) => {
     let isTouchEvent = false;
     if (event.type === 'touchstart') {
@@ -104,7 +104,7 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
         handleColumnResizeEndEvent(
           datagridState.dispatch,
           onColResizeEnd,
-          isResizing
+          isResizing,
         );
         document.activeElement.blur();
       });
@@ -117,6 +117,7 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datagridState.state.isResizing]);
 
+  const [clonedCols, setClonedCols] = useState();
   
   useEffect(() => {
     if (!isFetching) {
@@ -138,9 +139,10 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
           clonedAIGeneratedCol.style.top = 0;
           clonedAIGeneratedCol.style.left = `${newLeftPosition}px`;
           clonedAIGeneratedCol.style.height = `${tableContainer.offsetHeight - 16}px`;
-          clonedAIGeneratedCol.setAttribute('data-column-id', '')
           innerScrollWrapper.appendChild(clonedAIGeneratedCol);
         });
+        const cols = document.querySelectorAll(`#${tableId} .${blockClass}__ai-generate-col-background`);
+        setClonedCols(cols);
       }
       setTimeout(() => {
         buildAIGeneratedColBackground();
@@ -194,6 +196,7 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
               )}
               key={header.id}
               data-column-id={header.id}
+              data-column-index={index}
               {...getAccessibilityProps(header)}
             >
               {header.render('Header')}
@@ -212,7 +215,7 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
                       }
                     }}
                     onMouseDown={() =>
-                      handleColumnResizeStartEvent(dispatch, header.id)
+                      handleColumnResizeStartEvent(dispatch, header.id, header.width, clonedCols)
                     }
                     onKeyDown={(event) => {
                       const { key } = event;
@@ -225,11 +228,11 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
                             : originalCol.width);
                         if (key === 'ArrowLeft') {
                           if (
-                            currentColumnWidth - incrementAmount >
+                            currentColumnWidth - INCREMENT_AMOUNT >
                             Math.max(minWidth, 50)
                           ) {
                             const newWidth =
-                              currentColumnWidth - incrementAmount;
+                              currentColumnWidth - INCREMENT_AMOUNT;
                             handleColumnResizingEvent(
                               dispatch,
                               header,
@@ -239,7 +242,7 @@ const HeaderRow = (datagridState, headRef, headerGroup) => {
                           }
                         }
                         if (key === 'ArrowRight') {
-                          const newWidth = currentColumnWidth + incrementAmount;
+                          const newWidth = currentColumnWidth + INCREMENT_AMOUNT;
                           handleColumnResizingEvent(
                             dispatch,
                             header,

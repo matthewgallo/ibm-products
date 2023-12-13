@@ -14,9 +14,6 @@
 // Standard imports.
 @use '../../global/styles/project-settings' as c4p-settings;
 
-// Other Carbon settings.
-@use '@carbon/react/scss/grid' as *;
-
 // EditTearsheet uses the following Carbon components:
 @use '@carbon/react/scss/components/toggle/toggle';
 @use '@carbon/react/scss/components/ui-shell/side-nav';

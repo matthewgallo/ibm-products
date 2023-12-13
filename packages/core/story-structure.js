@@ -144,6 +144,17 @@ const s = [
     ],
   },
   {
+    n: 'Community',
+    s: [
+      {
+        n: 'Components',
+        s: [
+          { n: 'Example', s: ['c/ExampleCommunityComponent'] }
+        ]
+      }
+    ]
+  },
+  {
     n: 'Carbon',
     s: [],
   },

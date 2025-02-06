@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corp. 2020, 2024
+ * Copyright IBM Corp. 2020, 2025
  *
  * This source code is licensed under the Apache-2.0 license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,8 +15,6 @@ import {
   Button,
   ButtonSet,
   Dropdown,
-  Tab,
-  TabList,
   TextInput,
   ProgressIndicator,
   ProgressStep,
@@ -33,10 +31,8 @@ import {
 import { getDeprecatedArgTypes } from '../../global/js/utils/props-helper';
 import styles from './_storybook-styles.scss?inline';
 import { WithFeatureFlags } from '../../../../core/.storybook/WithFeatureFlags';
-import { useStepContext, StepGroup, StepActions } from '../StepFlow';
+import { useStepContext } from '../StepFlow';
 import { useIsomorphicEffect } from '../../global/js/hooks';
-
-// import mdx from './Tearsheet.mdx';
 
 export default {
   title: 'IBM Products/Components/Tearsheet/Feature Flag',
@@ -221,23 +217,6 @@ const className = 'client-class-1 client-class-2';
 // eslint-disable-next-line react/prop-types
 const Template = ({ actions, aiLabel, influencer, slug, ...args }) => {
   const [open, setOpen] = useState(false);
-
-  const wiredActions =
-    actions &&
-    Array.prototype.map.call(actions, (action) => {
-      if (action.label === 'Cancel') {
-        const previousClick = action.onClick;
-        return {
-          ...action,
-          onClick: (evt) => {
-            setOpen(false);
-            previousClick(evt);
-          },
-        };
-      }
-      return action;
-    });
-
   const ref = useRef(undefined);
 
   const handleNextDisabledState = (formState, currentStep) => {
@@ -274,14 +253,14 @@ const Template = ({ actions, aiLabel, influencer, slug, ...args }) => {
           selectorPrimaryFocus="#email"
         >
           {/* Steps */}
-          <StepGroup>
+          <Tearsheet.StepGroup>
             <Step1 />
             <Step2 />
             <Step3 />
-          </StepGroup>
+          </Tearsheet.StepGroup>
 
           {/* Step actions */}
-          <StepActions
+          <Tearsheet.StepActions
             className={'my-custom-action-set'}
             buttonRenderer={({
               currentStep,
@@ -337,17 +316,6 @@ const Template = ({ actions, aiLabel, influencer, slug, ...args }) => {
     </>
   );
 };
-
-const tabs = (
-  <div className="tearsheet-stories__tabs">
-    <TabList aria-label="Tab list">
-      <Tab>Tab 1</Tab>
-      <Tab>Tab 2</Tab>
-      <Tab>Tab 3</Tab>
-      <Tab>Tab 4</Tab>
-    </TabList>
-  </div>
-);
 
 // Stories
 export const tearsheet = Template.bind({});

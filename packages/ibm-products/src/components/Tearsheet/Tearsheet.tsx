@@ -20,6 +20,7 @@ import { pkg } from '../../settings';
 import { portalType } from './TearsheetShell';
 import { useFeatureFlag } from '../FeatureFlags';
 import { TearsheetShellV2 } from './TearsheetShell_v2';
+import { StepActions, StepGroup } from '../StepFlow';
 
 const componentName = 'Tearsheet';
 
@@ -221,6 +222,11 @@ export let Tearsheet = React.forwardRef(
     );
   }
 );
+
+// @ts-expect-error Look up how to specify type for compound components
+Tearsheet.StepGroup = StepGroup;
+// @ts-expect-error
+Tearsheet.StepActions = StepActions;
 
 // Return a placeholder if not released and not enabled by feature flag
 Tearsheet = pkg.checkComponentEnabled(Tearsheet, componentName);

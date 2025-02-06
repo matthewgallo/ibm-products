@@ -11,7 +11,6 @@ import userEvent from '@testing-library/user-event';
 import {
   expectWarn,
   expectMultipleError,
-  required,
 } from '../../global/js/utils/test-helper';
 
 import uuidv4 from '../../global/js/utils/uuidv4';
@@ -27,6 +26,11 @@ import {
 } from '@carbon/react';
 import { Tearsheet, TearsheetNarrow } from '.';
 import { CreateTearsheetNarrow } from '../CreateTearsheetNarrow';
+import { checkHeightOverflow } from '../../global/js/utils/checkForOverflow';
+
+jest.mock('../../global/js/utils/checkForOverflow', () => ({
+  checkHeightOverflow: jest.fn(),
+}));
 
 const blockClass = `${pkg.prefix}--tearsheet`;
 const componentName = Tearsheet.displayName;
@@ -36,6 +40,7 @@ const componentNameCreateNarrow = CreateTearsheetNarrow.displayName;
 const onClick = jest.fn();
 const onCloseReturnsFalse = jest.fn(() => false);
 const onCloseReturnsTrue = jest.fn(() => true);
+const onBlur = jest.fn();
 
 const createButton = `Create ${uuidv4()}`;
 const actions = [
@@ -92,10 +97,44 @@ const navigation = (
 );
 const title = `Title of the ${uuidv4()} tearsheet`;
 
+const mainText = 'Main content 1';
+const inputId = 'stacked-input-1';
+
+// eslint-disable-next-line react/prop-types
+const DummyComponent = ({ props, open }) => {
+  const buttonRef = React.useRef(undefined);
+
+  return (
+    <>
+      <Button ref={buttonRef}>Open</Button>
+      <Tearsheet
+        {...{ ...props, closeIconDescription }}
+        {...{
+          open: open,
+        }}
+        hasCloseIcon={true}
+        onClose={onCloseReturnsTrue}
+        open={open}
+        selectorPrimaryFocus={`#${inputId}`}
+        launcherButtonRef={buttonRef}
+      >
+        <div className="tearsheet-stories__dummy-content-block">
+          {mainText}
+          <TextInput
+            id={inputId}
+            data-testid={inputId}
+            labelText="Enter an important value here"
+            onBlur={onBlur}
+          />
+        </div>
+      </Tearsheet>
+    </>
+  );
+};
+
 // These are tests than apply to both Tearsheet and TearsheetNarrow
 // and also (with extra props and omitting button tests) to CreateTearsheetNarrow
 let tooManyButtonsTestedAlready = false;
-let closeIconDescriptionTestedAlready = false;
 const commonTests = (Ts, name, props, testActions) => {
   it(`renders a component ${name}`, async () => {
     render(<Ts {...{ ...props, closeIconDescription }} />);
@@ -193,27 +232,25 @@ const commonTests = (Ts, name, props, testActions) => {
     screen.getByRole('button', { name: closeIconDescription });
   });
 
-  if (testActions) {
-    it('requires closeIconDescription when there are no actions', async () =>
-      expectMultipleError(
-        // prop-types only reports the first occurrence of each distinct error,
-        // which creates an unfortunate dependency between test runs
-        closeIconDescriptionTestedAlready
-          ? [required('closeIconDescription', name)]
-          : [
-              required('closeIconDescription', name),
-              required('closeIconDescription', 'TearsheetShell'),
-            ],
-        () => {
-          render(<Ts {...props} />);
-          closeIconDescriptionTestedAlready = true;
-        }
-      ));
-  }
-
   it('renders description', async () => {
     render(<Ts {...{ ...props, closeIconDescription, description }} />);
     screen.getByText(descriptionFragment);
+  });
+
+  it('renders description with DefinitionTooltip when overflowing', async () => {
+    checkHeightOverflow.mockReturnValue(true);
+    render(<Ts {...{ ...props, closeIconDescription, description }} open />);
+    expect(
+      document.querySelector(`.${blockClass}__description-tooltip`)
+    ).not.toBeNull();
+  });
+
+  it('renders description without DefinitionTooltip when not overflowing', async () => {
+    checkHeightOverflow.mockReturnValue(false);
+    render(<Ts {...{ ...props, closeIconDescription, description }} open />);
+    expect(
+      document.querySelector(`.${blockClass}__description-tooltip`)
+    ).toBeNull();
   });
 
   it('renders label', async () => {
@@ -262,40 +299,6 @@ const commonTests = (Ts, name, props, testActions) => {
     });
 
     it('should return focus to the launcher button', async () => {
-      const mainText = 'Main content 1';
-      const inputId = 'stacked-input-1';
-
-      // eslint-disable-next-line react/prop-types
-      const DummyComponent = ({ open }) => {
-        const buttonRef = React.useRef(undefined);
-
-        return (
-          <>
-            <Button ref={buttonRef}>Open</Button>
-            <Ts
-              {...{ ...props, closeIconDescription }}
-              {...{
-                open: open,
-              }}
-              hasCloseIcon={true}
-              onClose={onCloseReturnsTrue}
-              open={open}
-              selectorPrimaryFocus={`#${inputId}`}
-              launcherButtonRef={buttonRef}
-            >
-              <div className="tearsheet-stories__dummy-content-block">
-                {mainText}
-                <TextInput
-                  id={inputId}
-                  data-testid={inputId}
-                  labelText="Enter an important value here"
-                />
-              </div>
-            </Ts>
-          </>
-        );
-      };
-
       const { rerender, getByText, getByTestId } = render(
         <DummyComponent open={true} />
       );
@@ -319,6 +322,19 @@ const commonTests = (Ts, name, props, testActions) => {
 
       await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
       expect(launchButtonEl).toHaveFocus();
+    });
+
+    it('should call onBlur only once', async () => {
+      const { getByTestId } = render(<DummyComponent open={true} />);
+
+      const inputEl = getByTestId(inputId);
+      const closeButton = screen.getByRole('button', {
+        name: closeIconDescription,
+      });
+
+      expect(inputEl).toHaveFocus();
+      await act(() => userEvent.click(closeButton));
+      expect(onBlur).toHaveBeenCalledTimes(1);
     });
   }
 

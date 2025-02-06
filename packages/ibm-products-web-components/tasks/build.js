@@ -12,8 +12,6 @@ import { globby } from 'globby';
 import { rollup } from 'rollup';
 import alias from '@rollup/plugin-alias';
 import autoprefixer from 'autoprefixer';
-import carbonIcons from '../tools/rollup-plugin-icons.js';
-import carbonIconPaths from '../tools/rollup-plugin-icon-paths.js';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import cssnano from 'cssnano';
@@ -22,6 +20,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
 import postcss from 'postcss';
 import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';
 
 import * as packageJson from '../package.json' assert { type: 'json' };
 
@@ -45,7 +44,8 @@ async function build() {
   ]);
 
   const iconInput = await globby([
-    'node_modules/@carbon/icons/lib/**/*.js',
+    '../node_modules/@carbon/icons/lib/**/*.js',
+    '../../node_modules/@carbon/icons/lib/**/*.js',
     '!**/index.js',
   ]);
 
@@ -125,6 +125,7 @@ function getRollupConfig(input, rootDir, outDir, iconInput) {
         targets: [{ src: 'src/components/**/*.scss', dest: 'scss' }],
         flatten: false,
       }),
+      [json()],
       nodeResolve({
         browser: true,
         mainFields: ['jsnext', 'module', 'main'],
@@ -146,7 +147,6 @@ function getRollupConfig(input, rootDir, outDir, iconInput) {
           ).css;
         },
       }),
-      carbonIcons(iconInput, banner),
       typescript({
         noEmitOnError: true,
         compilerOptions: {
@@ -154,7 +154,6 @@ function getRollupConfig(input, rootDir, outDir, iconInput) {
           outDir,
         },
       }),
-      carbonIconPaths(),
     ],
   };
 }

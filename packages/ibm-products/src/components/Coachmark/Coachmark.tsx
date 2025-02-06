@@ -38,6 +38,7 @@ const defaults = {
   onClose: () => {},
   overlayKind: 'tooltip',
   theme: 'light',
+  isOpenByDefault: false,
 };
 
 export interface CoachmarkProps {
@@ -113,6 +114,11 @@ export interface CoachmarkProps {
    * Determines the theme of the component.
    */
   theme?: 'light' | 'dark';
+  /**
+   * Determines if the coachmark is open by default.
+   * Does nothing if `overlayKind=stacked`.
+   */
+  isOpenByDefault?: boolean;
 }
 
 /**
@@ -136,7 +142,7 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
       portalTarget,
       target,
       theme = defaults.theme,
-
+      isOpenByDefault = defaults.isOpenByDefault,
       // Collect any other property values passed in.
       ...rest
     },
@@ -144,7 +150,7 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
   ) => {
     const isBeacon = overlayKind === COACHMARK_OVERLAY_KIND.TOOLTIP;
     const isStacked = overlayKind === COACHMARK_OVERLAY_KIND.STACKED;
-    const [isOpen, setIsOpen] = useState(isStacked);
+    const [isOpen, setIsOpen] = useState(isStacked || isOpenByDefault);
     const [shouldResetPosition, setShouldResetPosition] = useState(false);
     const [targetRect, setTargetRect] = useState();
     const [targetOffset, setTargetOffset] = useState({ x: 0, y: 0 });
@@ -154,6 +160,7 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
     const _overlayRef = overlayRef || overlayBackupRef;
 
     const portalNode = useRef<Element | DocumentFragment | null>(null);
+    const popoverRef = useRef<HTMLDivElement>(null);
 
     useIsomorphicEffect(() => {
       portalNode.current = portalTarget
@@ -207,10 +214,6 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
         setShouldResetPosition(true);
       }
     };
-    const overlayPositionStyle = {
-      top: (positionTune?.y ?? 0) - 16,
-      left: (positionTune?.x ?? 0) - 16,
-    };
 
     const contextValue = {
       buttonProps: {
@@ -242,6 +245,24 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
         setIsOpen(true);
       }
     }, [shouldResetPosition]);
+
+    useIsomorphicEffect(() => {
+      const overlayPositionStyle = {
+        top: `${(positionTune?.y ?? 0) - 16}px`,
+        left: `${(positionTune?.x ?? 0) - 16}px`,
+      };
+      if (
+        popoverRef.current &&
+        popoverRef.current.style &&
+        overlayPositionStyle
+      ) {
+        const combinedStyle = {
+          position: 'absolute',
+          ...overlayPositionStyle,
+        };
+        Object.assign(popoverRef.current.style, combinedStyle);
+      }
+    }, [popoverRef, positionTune]);
 
     // On unmount:
     // - DO NOT "Close()" the coachmark.
@@ -299,7 +320,7 @@ export let Coachmark = forwardRef<HTMLElement, CoachmarkProps>(
             <Popover
               highContrast
               caret
-              style={{ position: 'absolute', ...overlayPositionStyle }}
+              ref={popoverRef}
               align={align as PopoverAlignment}
               autoAlign={autoAlign}
               open={isOpen}
@@ -380,6 +401,12 @@ Coachmark.propTypes = {
    * Optional class name for this component.
    */
   className: PropTypes.string,
+
+  /**
+   * Determines if the coachmark is open by default.
+   * Does nothing if `overlayKind=stacked`.
+   */
+  isOpenByDefault: PropTypes.bool,
 
   /**
    * Function to call when the Coachmark closes.

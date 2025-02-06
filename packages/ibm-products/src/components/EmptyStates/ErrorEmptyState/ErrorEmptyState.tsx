@@ -6,7 +6,7 @@
  */
 
 // Import portions of React that are needed.
-import React, { ReactNode } from 'react';
+import React, { ElementType, ReactNode } from 'react';
 
 // Other standard imports.
 import PropTypes from 'prop-types';
@@ -26,14 +26,14 @@ import { CarbonIconType } from '@carbon/icons-react/lib/CarbonIcon';
 const blockClass = `${pkg.prefix}--empty-state`;
 const componentName = 'ErrorEmptyState';
 
-interface ErrorEmptyStateProps {
+export interface ErrorEmptyStateProps {
   /**
    * Empty state action button
    */
   action?: {
     kind?: 'primary' | 'secondary' | 'tertiary';
     renderIcon?: CarbonIconType;
-    onClick?: ButtonProps['onClick'];
+    onClick?: ButtonProps<React.ElementType>['onClick'];
     text?: string;
   };
 
@@ -69,6 +69,10 @@ interface ErrorEmptyStateProps {
   };
 
   /**
+   * Empty state headingAs allows you to customize the type of heading element
+   */
+  headingAs?: (() => ReactNode) | string | ElementType;
+  /**
    * Empty state size
    */
   size?: 'lg' | 'sm';
@@ -102,6 +106,7 @@ export let ErrorEmptyState = React.forwardRef<
       illustrationTheme,
       link,
       size = defaults.size,
+      headingAs = defaults.headingAs,
       subtitle,
       title,
 
@@ -134,6 +139,7 @@ export let ErrorEmptyState = React.forwardRef<
           action={action}
           link={link}
           size={size}
+          headingAs={headingAs}
           subtitle={subtitle}
           title={title || ''}
         />
@@ -157,9 +163,11 @@ ErrorEmptyState.propTypes = {
    * Empty state action button
    */
   action: PropTypes.shape({
+    /**@ts-ignore*/
     ...Button.propTypes,
     kind: PropTypes.oneOf(['primary', 'secondary', 'tertiary']),
     renderIcon: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+    /**@ts-ignore*/
     onClick: Button.propTypes.onClick,
     text: PropTypes.string,
   }),
@@ -168,6 +176,11 @@ ErrorEmptyState.propTypes = {
    * Provide an optional class to be applied to the containing node.
    */
   className: PropTypes.string,
+
+  /**
+   * Empty state headingAs allows you to customize the type of heading element
+   */
+  headingAs: PropTypes.elementType,
 
   /**
    * The alt text for empty state svg images. If not provided , title will be used.
@@ -190,6 +203,7 @@ ErrorEmptyState.propTypes = {
   /**
    * Empty state link object
    */
+  /**@ts-ignore*/
   link: PropTypes.shape({
     ...Link.propTypes,
     text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),

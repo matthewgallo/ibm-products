@@ -21,7 +21,7 @@ import React, { MutableRefObject, ReactNode, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { getDevtoolsProps } from '../../global/js/utils/devtools';
-import { useFocus } from '../../global/js/hooks/useFocus';
+import { claimFocus, useFocus } from '../../global/js/hooks/useFocus';
 import { pkg } from '../../settings';
 import { usePortalTarget } from '../../global/js/hooks/usePortalTarget';
 import uuidv4 from '../../global/js/utils/uuidv4';
@@ -153,17 +153,12 @@ export let AboutModal = React.forwardRef(
 
     useEffect(() => {
       if (open) {
-        setTimeout(() => firstElement?.focus(), 0);
+        claimFocus(firstElement, modalRef);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [firstElement, modalRef, open]);
 
     return renderPortalUse(
-      <FeatureFlags
-        flags={{
-          'enable-experimental-focus-wrap-without-sentinels': true,
-        }}
-      >
+      <FeatureFlags enableExperimentalFocusWrapWithoutSentinels>
         <ComposedModal
           {
             // Pass through any other property values as HTML attributes.

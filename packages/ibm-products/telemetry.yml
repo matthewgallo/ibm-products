@@ -15,6 +15,7 @@ collect:
         - activeCellCoordinates
         - activeHref
         - addConditionSubGroupHandler
+        - aiLabel
         - align
         - allPageRowsLabel
         - allRowsLabel
@@ -71,6 +72,7 @@ collect:
         - DatagridBatchActions
         - DatagridPagination
         - datagridState
+        - decorator
         - defaultColumn
         - defaultEmptyRowCount
         - description
@@ -79,6 +81,7 @@ collect:
         - disabledCell
         - disableSubmit
         - displayMetalPanel
+        - downloadLinkLabel
         - draggableClass
         - element
         - emptyStateAction
@@ -131,11 +134,13 @@ collect:
         - hasActions
         - hasCloseIcon
         - hasCustomRowHeader
+        - hasError
         - hasFieldset
         - headerActions
         - headerGroups
         - HeaderRow
         - headers
+        - headingAs
         - headRef
         - hideConditionPreviewHandler
         - hideConditionSubGroupPreviewHandler
@@ -231,6 +236,7 @@ collect:
         - onNext
         - onOverflowClick
         - onOverflowTagChange
+        - onPrevious
         - onPrimaryButtonClick
         - onRemove
         - onRequestClose
@@ -281,6 +287,7 @@ collect:
         - reactTableFiltersState
         - readOnlyTable
         - renderIcon
+        - renderMedia
         - renderRowHeader
         - renderRowHeaderDirection
         - resetToDefaultLabel
@@ -341,6 +348,7 @@ collect:
         - sortByLabel
         - startConditionLabel
         - state
+        - statementConfigCustom
         - status
         - style
         - submitButtonText
@@ -451,14 +459,17 @@ collect:
         - editButtonText
         - editing
         - editSuccess
+        - editSuccessMessage
         - editSuccessTitle
         - errorText
         - generateButtonText
         - generateSuccessBody
+        - generateSuccessMessage
         - generateSuccessTitle
         - generateTitle
         - hasAPIKeyVisibilityToggle
         - hasDownloadLink
+        - helperText
         - hideAPIKeyLabel
         - loadingText
         - modalLabel
@@ -514,6 +525,7 @@ collect:
         - toggleLabel
         - toggleLabelAlign
         # Coachmark
+        - isOpenByDefault
         - overlayClassName
         - overlayKind
         - overlayRef
@@ -526,6 +538,7 @@ collect:
         - fixedIsVisible
         # CoachmarkOverlayElements
         - isVisible
+        - onBack
         # CoachmarkStackHome
         - onClickNavItem
         # Columns
@@ -574,14 +587,15 @@ collect:
         - modalDescription
         - modalSecondaryButtonText
         - modalTitle
+        - onClickInfluencerStep
         - secondaryTitle
         # CreateInfluencer
+        - onClickStep
         - stepData
         # CreateTearsheet
         - experimentalSecondarySubmitText
         # CreateTearsheetStep
         - experimentalSecondarySubmit
-        - onPrevious
         # CustomizeColumnsTearsheet
         - columnDefinitions
         - onSaveColumnPrefs
@@ -793,6 +807,7 @@ collect:
         - actionBarItems
         - actionBarMenuOptionsClass
         - actionBarOverflowAriaLabel
+        - breadcrumbLabel
         - breadcrumbOverflowAriaLabel
         - collapseHeader
         - collapseHeaderIconDescription
@@ -857,7 +872,6 @@ collect:
         - isAllRowsSelected
         # SidePanel
         - actionToolbarButtons
-        - aiLabel
         - animateTitle
         - condensedActions
         - includeOverlay

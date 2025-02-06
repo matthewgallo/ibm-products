@@ -139,6 +139,7 @@ declare module '@carbon/react' {
     SideNav,
     SideNavItems,
     SideNavLink,
+    SideNavMenuItem,
     SkeletonIcon,
     SkeletonIconProps,
     SkeletonPlaceholder,
@@ -211,7 +212,6 @@ declare module '@carbon/react' {
     usePrefix,
   } from '@carbon/react';
 }
-
 declare module '@carbon/colors';
 declare module '@carbon/motion';
 declare module '@carbon/feature-flags';

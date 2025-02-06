@@ -6,5 +6,16 @@
 //
 
 @forward '../../../../ibm-products-styles/src/global/styles/project-settings';
+@use '@carbon/styles/scss/theme' as *;
+@use '@carbon/styles/scss/spacing' as *;
 
 // TODO: add any additional styles used by UserAvatar.stories.js
+.theme-section {
+  padding: $spacing-05;
+  background: $background;
+  color: $text-primary;
+}
+
+.theme-text {
+  margin-block-end: $spacing-03;
+}

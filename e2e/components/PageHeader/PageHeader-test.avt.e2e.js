@@ -9,7 +9,8 @@
 
 import { expect, test } from '@playwright/test';
 import { visitStory } from '../../test-utils/storybook';
-
+import { carbon } from '../../../packages/ibm-products/src/settings';
+import { pkg } from '../../../packages/ibm-products/src/settings';
 test.use({ viewport: { width: 1600, height: 900 } });
 
 test.describe('PageHeader @avt', () => {
@@ -33,11 +34,10 @@ test.describe('PageHeader @avt', () => {
         carbonTheme: 'white',
       },
     });
-    const pageTitle = page
-      .getByRole('heading', {
-        name: 'A very long page title with a short version in breadcrumbs; this will almost certainly be truncated at some point',
-      })
-      .locator('span');
+
+    const pageTitle = page.getByRole('button', {
+      name: 'A very long page title with a short version in breadcrumbs; this will almost certainly be truncated at some point',
+    });
 
     // The header starts expanded.
     await expect(pageTitle).toBeInViewport();
@@ -68,11 +68,8 @@ test.describe('PageHeader @avt', () => {
         carbonTheme: 'white',
       },
     });
-    const pageTitle = page
-      .getByRole('heading', {
-        name: 'Page title',
-      })
-      .locator('span');
+
+    const pageTitle = page.getByRole('heading').getByText('Page title');
 
     // The header starts collapsed.
     await page.waitForTimeout(200);
@@ -93,17 +90,15 @@ test.describe('PageHeader @avt', () => {
         carbonTheme: 'white',
       },
     });
-    const pageTitle = page
-      .getByRole('heading', {
-        name: 'A very long page title with a short version in breadcrumbs; this will almost certainly be truncated at some point',
-      })
-      .locator('span');
+    const pageTitle = page.getByRole('button', {
+      name: 'A very long page title with a short version in breadcrumbs; this will almost certainly be truncated at some point',
+    });
 
     // The header starts expanded.
     await expect(pageTitle).toBeInViewport();
 
     // The header collapses when the cheveron button is toggled close.
-    await pressTabKey(page, 19);
+    await pressTabKey(page, 20);
     await expect(page.getByLabel('Collapse the page header')).toBeFocused();
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
@@ -127,9 +122,17 @@ test.describe('PageHeader @avt', () => {
         carbonTheme: 'white',
       },
     });
+    // Race conditions
+    // Wait for the "+13" tag element to appear and be visible
+    await page.waitForSelector(
+      `span.${carbon.prefix}--tag__label[title="+13"]`,
+      {
+        visible: true,
+      }
+    );
 
     // renders all buttons on large screens by default
-    await pressTabKey(page, 14);
+    await pressTabKey(page, 15);
     await expect(
       page.getByRole('button', { name: 'danger Danger button' })
     ).toBeFocused();
@@ -144,8 +147,11 @@ test.describe('PageHeader @avt', () => {
     // collapses into menu button on small screens
     await page.setViewportSize({ width: 1024, height: 768 });
     // reset focus to first focusable element
-    await page.getByLabel('Open and close additional').focus();
-    await pressTabKey(page, 5);
+    await page
+      .getByLabel('Breadcrumb', { exact: true })
+      .getByRole('button')
+      .focus();
+    await pressTabKey(page, 6);
 
     await expect(
       page.getByRole('button', { name: 'Page actions' })
@@ -174,8 +180,17 @@ test.describe('PageHeader @avt', () => {
       },
     });
 
+    // Race conditions
+    // Wait for the "+13" tag element to appear and be visible
+    await page.waitForSelector(
+      `span.${carbon.prefix}--tag__label[title="+13"]`,
+      {
+        visible: true,
+      }
+    );
+
     // renders all buttons on large screens by default
-    await pressTabKey(page, 14);
+    await pressTabKey(page, 15);
     await expect(
       page.getByRole('button', { name: 'danger Danger button' })
     ).toBeFocused();
@@ -187,12 +202,18 @@ test.describe('PageHeader @avt', () => {
     await expect(
       page.getByRole('button', { name: 'Primary button' })
     ).toBeFocused();
+
+    // collapse the header
+    await pressTabKey(page, 3);
+    await page.keyboard.press('Enter');
+    await page.waitForSelector(
+      `.${pkg.prefix}--page-header__collapse-expand-toggle--collapsed`,
+      { visible: true }
+    );
+
     // reset focus to first focusable element
     await page.getByRole('link', { name: 'Home page' }).focus();
-    // changes position when header collapsed
-    await page.locator(`.page-header-stories__dummy-content`).first().hover();
-    await page.mouse.wheel(0, 180);
-    await pressTabKey(page, 4);
+    await pressTabKey(page, 3);
     await expect(
       page.getByRole('button', { name: 'Page actions...' })
     ).toBeFocused();
@@ -220,6 +241,15 @@ test.describe('PageHeader @avt', () => {
       },
     });
 
+    // Race conditions
+    // Wait for the "+13" tag element to appear and be visible
+    await page.waitForSelector(
+      `span.${carbon.prefix}--tag__label[title="+13"]`,
+      {
+        visible: true,
+      }
+    );
+
     // renders all buttons on large screens by default
     await pressTabKey(page, 4);
     await expect(page.getByRole('tooltip').getByText('Action 1')).toBeVisible();
@@ -235,7 +265,10 @@ test.describe('PageHeader @avt', () => {
     // collapses into menu button on small screens
     await page.setViewportSize({ width: 1024, height: 768 });
     // reset focus to first focusable element
-    await page.getByLabel('Open and close additional').focus();
+    await page
+      .getByLabel('Breadcrumb', { exact: true })
+      .getByRole('button')
+      .focus();
     await pressTabKey(page, 1);
     await expect(page.getByRole('tooltip').getByText('Action 1')).toBeVisible();
     await pressTabKey(page, 2);

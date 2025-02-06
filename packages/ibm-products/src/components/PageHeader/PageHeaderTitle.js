@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { SkeletonText } from '@carbon/react';
+import { DefinitionTooltip, SkeletonText } from '@carbon/react';
 import { EditInPlace } from '../EditInPlace';
+import { checkWidthOverflow } from '../../global/js/utils/checkForOverflow';
 
 /**
  *
@@ -33,10 +34,14 @@ export const PageHeaderTitle = ({ blockClass, hasBreadcrumbRow, title }) => {
     editableLabel,
     cancelDescription,
     saveDescription,
+    tooltipAlignment = 'bottom',
     ...rest
   } = title;
   let titleText;
   let isEditable = !!onSave;
+
+  const titleRef = useRef();
+  const isEllipsisApplied = checkWidthOverflow(titleRef.current);
 
   if (text || !content) {
     if (text === undefined && typeof title === 'string') {
@@ -45,10 +50,18 @@ export const PageHeaderTitle = ({ blockClass, hasBreadcrumbRow, title }) => {
     }
     const TitleIcon = icon;
 
+    const titleContent = (
+      <span ref={titleRef} className={`${blockClass}__titleText`}>
+        {text}
+      </span>
+    );
+
     titleInnards = (
       <>
         {icon && !loading ? (
-          <TitleIcon className={`${blockClass}__title-icon`} />
+          <span className={`${blockClass}__title-icon-wrapper`}>
+            <TitleIcon className={`${blockClass}__title-icon`} />
+          </span>
         ) : null}
 
         {loading ? (
@@ -67,8 +80,17 @@ export const PageHeaderTitle = ({ blockClass, hasBreadcrumbRow, title }) => {
             inheritTypography
             {...rest}
           />
+        ) : isEllipsisApplied ? (
+          <DefinitionTooltip
+            openOnHover={false}
+            align={tooltipAlignment}
+            definition={text}
+            className={`${blockClass}__tooltip`}
+          >
+            {titleContent}
+          </DefinitionTooltip>
         ) : (
-          <span title={!loading ? asText : null}>{text}</span>
+          titleContent
         )}
       </>
     );
@@ -136,6 +158,16 @@ PageHeaderTitle.propTypes = {
       onSave: PropTypes.func,
       cancelDescription: PropTypes.string.isRequired.if(editInPlaceRequired),
       saveDescription: PropTypes.string.isRequired.if(editInPlaceRequired),
+      tooltipAlignment: PropTypes.oneOf([
+        'top',
+        'top-left',
+        'top-right',
+        'bottom',
+        'bottom-left',
+        'bottom-right',
+        'left',
+        'right',
+      ]),
       // Update docgen if changed
     }),
     PropTypes.string,

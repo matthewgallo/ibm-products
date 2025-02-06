@@ -21,8 +21,8 @@ import { SIDE_PANEL_SIZE, SIDE_PANEL_PLACEMENT } from './defs';
 import styles from './side-panel.scss?lit';
 import { selectorTabbable } from '@carbon/web-components/es/globals/settings.js';
 import { carbonElement as customElement } from '@carbon/web-components/es/globals/decorators/carbon-element.js';
-import ArrowLeft16 from '@carbon/icons/lib/arrow--left/16';
-import Close20 from '@carbon/icons/lib/close/20';
+import ArrowLeft16 from '@carbon/web-components/es/icons/arrow--left/16';
+import Close20 from '@carbon/web-components/es/icons/close/20';
 import { moderate02 } from '@carbon/motion';
 import Handle from '../../globals/internal/handle';
 import '@carbon/web-components/es/components/button/index.js';
@@ -85,13 +85,13 @@ function tryFocusElements(elements: NodeListOf<HTMLElement>, reverse: boolean) {
 /**
  * SidePanel.
  *
- * @element cds-side-panel
+ * @element c4p-side-panel
  * @csspart dialog The dialog.
- * @fires cds-side-panel-beingclosed
+ * @fires c4p-side-panel-beingclosed
  *   The custom event fired before this side-panel is being closed upon a user gesture.
  *   Cancellation of this event stops the user-initiated action of closing this side-panel.
- * @fires cds-side-panel-closed - The custom event fired after this side-panel is closed upon a user gesture.
- * @fires cds-side-panel-navigate-back - custom event fired when clicking navigate back (available when step > 0)
+ * @fires c4p-side-panel-closed - The custom event fired after this side-panel is closed upon a user gesture.
+ * @fires c4p-side-panel-navigate-back - custom event fired when clicking navigate back (available when step > 0)
  */
 @customElement(`${prefix}-side-panel`)
 class CDSSidePanel extends HostListenerMixin(LitElement) {
@@ -203,7 +203,6 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
       const comparisonResult = (target as Node).compareDocumentPosition(
         relatedTarget as Node
       );
-      // eslint-disable-next-line no-bitwise
       if (relatedTarget === startSentinelNode || comparisonResult) {
         await (this.constructor as typeof CDSSidePanel)._delay();
         if (
@@ -215,9 +214,7 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
         ) {
           this.focus();
         }
-      }
-      // eslint-disable-next-line no-bitwise
-      else if (relatedTarget === endSentinelNode || comparisonResult) {
+      } else if (relatedTarget === endSentinelNode || comparisonResult) {
         await (this.constructor as typeof CDSSidePanel)._delay();
         if (
           !tryFocusElements(
@@ -337,10 +334,11 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
             newValues.marginInlineEnd = `${this?._sidePanel?.offsetWidth}px`;
           }
         }
-
-        Object.keys(newValues).forEach((key) => {
-          pageContentEl.style[key] = newValues[key];
-        });
+        if (this.slideIn) {
+          Object.keys(newValues).forEach((key) => {
+            pageContentEl.style[key] = newValues[key];
+          });
+        }
       }
     }
   };
@@ -405,7 +403,6 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
     this._hasSubtitle = subtitle.length > 0;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private _handleActionToolbarChange(e: Event) {
     const target = e.target as HTMLSlotElement;
     const toolbarActions = target?.assignedElements();
@@ -680,7 +677,6 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
     const actionsMultiple = ['', 'single', 'double', 'triple'][
       this._actionsCount
     ];
-
     const titleTemplate = html`<div
       class=${`${blockClass}__title`}
       ?no-label=${!!labelText}
@@ -913,7 +909,7 @@ class CDSSidePanel extends HostListenerMixin(LitElement) {
         await (this.constructor as typeof CDSSidePanel)._delay();
         if (focusNode) {
           // For cases where a `carbon-web-components` component (e.g. `<cds-button>`) being `primaryFocusNode`,
-          // where its first update/render cycle that makes it focusable happens after `<cds-side-panel>`'s first update/render cycle
+          // where its first update/render cycle that makes it focusable happens after `<c4p-side-panel>`'s first update/render cycle
           (focusNode as HTMLElement).focus();
         } else if (
           !tryFocusElements(

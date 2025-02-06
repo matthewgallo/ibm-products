@@ -25,6 +25,7 @@ import React, {
   isValidElement,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -243,7 +244,7 @@ export let InterstitialScreen = React.forwardRef<
     }, [onClose]);
 
     const scrollBodyToTop = () => {
-      bodyScrollRef.current?.scroll({
+      bodyScrollRef.current?.scroll?.({
         top: 0,
         behavior: 'smooth',
       });
@@ -288,6 +289,14 @@ export let InterstitialScreen = React.forwardRef<
       return () => window.removeEventListener('keydown', close);
     }, [handleClose]);
 
+    const stepSize = useMemo(
+      () =>
+        children && Children.count(children) > 1
+          ? parseFloat((1 / (Children.count(children) - 1)).toFixed(2))
+          : 0,
+      [children]
+    );
+
     if (!isOpen) {
       return null;
     }
@@ -304,7 +313,7 @@ export let InterstitialScreen = React.forwardRef<
             className // Apply any supplied class names to the main HTML element.
           )}
           size="lg"
-          onClose={onClose}
+          onClose={handleClose}
           open={isOpen}
           ref={_forwardedRef}
           aria-label={interstitialAriaLabel}
@@ -317,7 +326,6 @@ export let InterstitialScreen = React.forwardRef<
               headerClassName
             )}
             iconDescription={closeIconDescription}
-            buttonOnClick={handleClose}
           >
             {headerTitle && <h2>{headerTitle}</h2>}
             {!hideProgressIndicator && (
@@ -395,6 +403,11 @@ export let InterstitialScreen = React.forwardRef<
       );
     };
 
+    const scrollToCurrentStep = (scrollPercent) => {
+      const currentStep = scrollPercent / stepSize;
+      setProgStep(Math.ceil(currentStep));
+    };
+
     const renderBody = () => {
       {
         /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
@@ -420,9 +433,7 @@ export let InterstitialScreen = React.forwardRef<
                         <Carousel
                           disableArrowScroll
                           ref={scrollRef}
-                          onScroll={(scrollPercent) => {
-                            scrollPercent === 0 && setProgStep(0);
-                          }}
+                          onScroll={scrollToCurrentStep}
                         >
                           {children}
                         </Carousel>
@@ -462,9 +473,7 @@ export let InterstitialScreen = React.forwardRef<
                   <Carousel
                     disableArrowScroll
                     ref={scrollRef}
-                    onScroll={(scrollPercent) => {
-                      scrollPercent === 0 && setProgStep(0);
-                    }}
+                    onScroll={scrollToCurrentStep}
                   >
                     {children}
                   </Carousel>

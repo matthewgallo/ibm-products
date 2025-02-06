@@ -6,10 +6,10 @@
  */
 
 // Carbon and package components we use.
-import { Button, ButtonProps } from '@carbon/react';
+import { Button, type ButtonProps } from '@carbon/react';
 // Import portions of React that are needed.
 import React, { ForwardedRef, PropsWithChildren, ReactNode } from 'react';
-import { TearsheetShell, tearsheetHasCloseIcon } from './TearsheetShell';
+import { TearsheetShell } from './TearsheetShell';
 
 import { ActionSet } from '../ActionSet';
 // Other standard imports.
@@ -25,26 +25,13 @@ import { StepActions, StepGroup } from '../StepFlow';
 const componentName = 'Tearsheet';
 
 // NOTE: the component SCSS is not imported here: it is rolled up separately.
-
-/**
- * The accessibility title for the close icon (if shown).
- *
- * **Note:** This prop is only required if a close icon is shown, i.e. if
- * there are a no navigation actions and/or hasCloseIcon is true.
- */
-export type CloseIconDescriptionTypes =
-  | {
-      hasCloseIcon?: false;
-      closeIconDescription?: string;
-    }
-  | {
-      hasCloseIcon: true;
-      closeIconDescription: string;
-    };
-
 // The types and DocGen commentary for the component props,
 // in alphabetical order (for consistency).
 // See https://www.npmjs.com/package/prop-types#usage.
+
+export interface TearsheetAction extends ButtonProps<'button'> {
+  label?: string;
+}
 
 // Note that the descriptions here should be kept in sync with those for the
 // corresponding props for TearsheetNarrow and TearsheetShell components.
@@ -62,7 +49,7 @@ export interface TearsheetProps extends PropsWithChildren {
    *
    * See https://react.carbondesignsystem.com/?path=/docs/components-button--default#component-api
    */
-  actions?: ButtonProps<'button'>[];
+  actions?: TearsheetAction[];
 
   /**
    * The aria-label for the tearsheet, which is optional.
@@ -74,6 +61,12 @@ export interface TearsheetProps extends PropsWithChildren {
    * An optional class or classes to be added to the outermost element.
    */
   className?: string;
+
+  /**
+   * The accessibility title for the close icon (if shown).
+   *
+   */
+  closeIconDescription?: string;
 
   /**
    * A description of the flow, displayed in the header area of the tearsheet.
@@ -144,7 +137,7 @@ export interface TearsheetProps extends PropsWithChildren {
   /**
    * The DOM element that the tearsheet should be rendered within. Defaults to document.body.
    */
-  portalTarget?: ReactNode;
+  portalTarget?: HTMLElement;
 
   /**
    * Specify a CSS selector that matches the DOM element that should be
@@ -193,7 +186,7 @@ export let Tearsheet = React.forwardRef(
       influencerPosition = 'left',
       influencerWidth = 'narrow',
       ...rest
-    }: TearsheetProps & CloseIconDescriptionTypes,
+    }: TearsheetProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
     const enableV3Tearsheet = useFeatureFlag('enable-v3-tearsheet');
@@ -273,6 +266,7 @@ Tearsheet.propTypes = {
     ActionSet.validateActions(() => '2xl'),
     PropTypes.arrayOf(
       PropTypes.shape({
+        /**@ts-ignore*/
         ...Button.propTypes,
         kind: PropTypes.oneOf([
           'ghost',
@@ -284,6 +278,7 @@ Tearsheet.propTypes = {
         label: PropTypes.string,
         loading: PropTypes.bool,
         // we duplicate this Button prop to improve the DocGen here
+        /**@ts-ignore*/
         onClick: Button.propTypes.onClick,
       })
     ),
@@ -303,13 +298,8 @@ Tearsheet.propTypes = {
   /**
    * The accessibility title for the close icon (if shown).
    *
-   * **Note:** This prop is only required if a close icon is shown, i.e. if
-   * there are a no navigation actions and/or hasCloseIcon is true.
    */
-  /**@ts-ignore */
-  closeIconDescription: PropTypes.string.isRequired.if(
-    ({ actions, hasCloseIcon }) => tearsheetHasCloseIcon(actions, hasCloseIcon)
-  ),
+  closeIconDescription: PropTypes.string,
 
   /**
    * A description of the flow, displayed in the header area of the tearsheet.
@@ -324,7 +314,6 @@ Tearsheet.propTypes = {
    * tearsheet"), and that behavior can be overridden if required by setting
    * this prop to either true or false.
    */
-  /**@ts-ignore */
   hasCloseIcon: PropTypes.bool,
 
   /**

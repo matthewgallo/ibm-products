@@ -155,8 +155,7 @@ export interface DataGridToggleAllRowsProps
   disabled?: boolean;
 }
 
-export interface DatagridTableHooks<T extends object = any>
-  extends UseTableHooks<T> {}
+export type DatagridTableHooks<T extends object = any> = UseTableHooks<T>;
 
 export interface DatagridColumn<T extends object = any>
   extends ColumnInstance<T>,
@@ -202,7 +201,7 @@ export interface DataGridHeaderGroup<T extends object = any>
   extends HeaderGroup<T>,
     UseResizeColumnsColumnProps<T> {}
 
-export interface DataGridTableProps extends TableCommonProps {}
+export type DataGridTableProps = TableCommonProps;
 
 interface DataGridTableState
   extends UseResizeColumnsState<any>,
@@ -230,7 +229,7 @@ export interface RowAction {
   icon?: ComponentType | FunctionComponent;
   align?: React.ComponentProps<typeof IconButton>['align'];
   shouldHideMenuItem?: (...args) => void;
-  shouldDisableMenuItem?: (...args) => void;
+  shouldDisableMenuItem?: (...args) => boolean;
   disabled?: boolean;
   onClick?: (...args) => void;
 }
@@ -281,7 +280,7 @@ export interface DataGridState<T extends object = any>
   emptyStateAction?: {
     kind?: 'primary' | 'secondary' | 'tertiary';
     renderIcon?: CarbonIconType;
-    onClick?: ButtonProps<any>['onClick'];
+    onClick?: ButtonProps<React.ElementType>['onClick'];
     text?: string;
   };
   emptyStateLink?: {
@@ -305,7 +304,7 @@ export interface DataGridState<T extends object = any>
   allPageRowsLabel?: string | object;
   allRowsLabel?: string | object;
   onSelectAllRows?: (val?: boolean) => void;
-  toolbarBatchActions?: ButtonProps<any>[];
+  toolbarBatchActions?: ButtonProps<React.ElementType>[];
   setGlobalFilter?: (filterValue: FilterValue) => void;
   batchActionMenuButtonLabel?: string;
   translateWithIdBatchActions?: TableBatchActionsProps['translateWithId'];
@@ -362,7 +361,7 @@ export interface ResizeHeaderProps {
   isFetching?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type VisibleColumns<T extends object = {}> = (
   allColumns: Array<ColumnInstance<T>>,
   meta: Meta<T>

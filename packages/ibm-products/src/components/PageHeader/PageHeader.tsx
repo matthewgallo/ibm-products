@@ -13,8 +13,11 @@ import {
   Tag,
   Tooltip,
   usePrefix,
+  ButtonProps,
+  PopoverAlignment,
+  DefinitionTooltip,
 } from '@carbon/react';
-import { ButtonProps, PopoverAlignment, TagProps } from '@carbon/type';
+import { TagProps } from '@carbon/react/lib/components/Tag/Tag';
 import React, {
   ForwardedRef,
   MutableRefObject,
@@ -25,7 +28,7 @@ import React, {
   useState,
 } from 'react';
 import { TagSet, string_required_if_more_than_10_tags } from '../TagSet/TagSet';
-import { baseFontSize, spacing10 } from '@carbon/layout';
+import { baseFontSize, spacing } from '@carbon/layout';
 import {
   blockClass,
   utilCheckUpdateVerticalSpace,
@@ -36,7 +39,11 @@ import {
   deprecateProp,
   prepareProps,
 } from '../../global/js/utils/props-helper';
-import { useNearestScroll, useWindowResize } from '../../global/js/hooks';
+import {
+  useIsomorphicEffect,
+  useNearestScroll,
+  useWindowResize,
+} from '../../global/js/hooks';
 
 import { ActionBar } from '../ActionBar/';
 import { BreadcrumbWithOverflow } from '../BreadcrumbWithOverflow';
@@ -49,6 +56,7 @@ import cx from 'classnames';
 import { getDevtoolsProps } from '../../global/js/utils/devtools';
 import { pkg } from '../../settings';
 import { useResizeObserver } from '../../global/js/hooks/useResizeObserver';
+import { checkHeightOverflow } from '../../global/js/utils/checkForOverflow';
 
 const componentName = 'PageHeader';
 
@@ -207,7 +215,7 @@ type PageActionProps =
        * - maxWidth: maximum number of pixels the content will grow to
        * Carbon Button API https://react.carbondesignsystem.com/?path=/docs/components-button--default#component-api
        */
-      pageActions: ButtonProps[] | PageAction;
+      pageActions: ButtonProps<React.ElementType>[] | PageAction;
       /**
        * When there is insufficient space to display all of hte page actions inline a dropdown button menu is shown,
        * containing the page actions. This label is used as the display content of the dropdown button menu.
@@ -221,7 +229,7 @@ type PageActionProps =
       pageActionsOverflowLabel?: ReactNode;
     };
 
-interface Tag extends TagProps {
+interface Tag extends TagProps<React.ElementType> {
   label: string;
 }
 
@@ -240,6 +248,15 @@ interface TitleIcon {
   cancelDescription?: string; //.isRequired.if(editInPlaceRequired),
   editDescription?: string; // .isRequired.if(editInPlaceRequired),
   saveDescription?: string; //.isRequired.if(editInPlaceRequired),
+  tooltipAlignment?:
+    | 'top'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'left'
+    | 'right';
   // Update docgen if changed
 }
 
@@ -283,6 +300,10 @@ interface PageHeaderBaseProps extends PropsWithChildren {
    */
   breadcrumbOverflowTooltipAlign?: PopoverAlignment;
   /**
+   * Label for the Breadcrumb component
+   */
+  breadcrumbLabel?: string;
+  /**
    * Specifies class(es) to be applied to the top-level PageHeader node.
    * Optional.
    */
@@ -319,7 +340,7 @@ interface PageHeaderBaseProps extends PropsWithChildren {
    * Content for the navigation area in the PageHeader. Should
    * be a React element that is normally a Carbon Tabs component. Optional.
    */
-  navigation?: object;
+  navigation?: ReactNode;
   // Supports Tabs
   /**
    * class name applied to the page actions overflow options
@@ -366,6 +387,7 @@ interface PageHeaderBaseProps extends PropsWithChildren {
    *    - editableLabel: label for edit required if onChange supplied
    *    - cancelDescription: label for edit cancel button
    *    - saveDescription: label for edit save button
+   *    - tooltipAlignment: position for tooltip displayed for large titles. Default to "bottom"
    * - Object containing user defined contents. These must fit within the area defined for the title in both main part of the header and the breadcrumb.
    *    - content: title or name of current location shown in main part of page header
    *    - breadcrumbContent: version of content used in the breadcrumb on scroll. If not supplied
@@ -403,6 +425,10 @@ interface Metrics {
   navigationRowHeight?: number;
 }
 
+interface HTMLElementStyled extends HTMLElement {
+  style: CSSStyleDeclaration;
+}
+
 export let PageHeader = React.forwardRef(
   (
     {
@@ -416,6 +442,7 @@ export let PageHeader = React.forwardRef(
       allTagsModalTitle,
       hasBackgroundAlways: deprecated_hasBackgroundAlways,
       breadcrumbOverflowAriaLabel,
+      breadcrumbLabel,
       breadcrumbs,
       children,
       className,
@@ -457,8 +484,9 @@ export let PageHeader = React.forwardRef(
     });
 
     // refs
-    const localHeaderRef = useRef(null);
-    const headerRef = ref || localHeaderRef;
+    const localHeaderRef = useRef<HTMLDivElement | null>(null);
+    const headerRef = (ref ||
+      localHeaderRef) as MutableRefObject<HTMLElementStyled>;
     const sizingContainerRef: MutableRefObject<HTMLDivElement | null> =
       useRef(null);
     const offsetTopMeasuringRef = useRef(null);
@@ -784,7 +812,8 @@ export let PageHeader = React.forwardRef(
         metrics.headerHeight > 0 &&
         (breadcrumbs || actionBarItems || tags || navigation)
       ) {
-        const startAddingAt = parseFloat(spacing10) * parseInt(baseFontSize);
+        const startAddingAt =
+          parseFloat(`${spacing[9]}`) * parseInt(`${baseFontSize}`);
         const scrollRemaining = metrics.headerHeight - scrollYValue;
 
         /* don't know how to test resize */
@@ -883,12 +912,31 @@ export let PageHeader = React.forwardRef(
 
     const displayedBreadcrumbs = getBreadcrumbs();
 
+    useIsomorphicEffect(() => {
+      Object.keys(pageHeaderStyles).forEach((key) => {
+        // check if style is a css var
+        if (key.startsWith('--')) {
+          headerRef.current.style.setProperty(key, pageHeaderStyles[key]);
+        } else {
+          headerRef.current.style[key] = pageHeaderStyles[key];
+        }
+      });
+    }, [headerRef, pageHeaderStyles]);
+
+    const subtitleRef = useRef<HTMLSpanElement>(null);
+    const isOverflowing = checkHeightOverflow(subtitleRef.current);
+    const subtitleContent = (
+      <span ref={subtitleRef} className={`${blockClass}__subtitle-text`}>
+        {subtitle}
+      </span>
+    );
+
     return (
       <>
         <div
           className={`${blockClass}--offset-top-measuring-element`}
           ref={offsetTopMeasuringRef}
-        ></div>
+        />
         <section
           {...rest}
           className={cx([
@@ -900,7 +948,6 @@ export let PageHeader = React.forwardRef(
               [`${blockClass}--has-navigation-tags-only`]: !navigation && tags,
             },
           ])}
-          style={pageHeaderStyles}
           ref={headerRef}
           {...getDevtoolsProps(componentName)}
         >
@@ -942,6 +989,7 @@ export let PageHeader = React.forwardRef(
                           breadcrumbs={displayedBreadcrumbs}
                           overflowTooltipAlign={breadcrumbOverflowTooltipAlign}
                           maxVisible={undefined}
+                          label={breadcrumbLabel}
                         />
                       )}
                     </Column>
@@ -1016,13 +1064,22 @@ export let PageHeader = React.forwardRef(
                 </Row>
               ) : null}
 
-              {subtitle ? (
+              {subtitle && (
                 <Row className={`${blockClass}__subtitle-row`}>
                   <Column className={`${blockClass}__subtitle`}>
-                    {subtitle}
+                    {isOverflowing ? (
+                      <DefinitionTooltip
+                        definition={subtitle}
+                        className={`${blockClass}__subtitle-tooltip`}
+                      >
+                        {subtitleContent}
+                      </DefinitionTooltip>
+                    ) : (
+                      subtitleContent
+                    )}
                   </Column>
                 </Row>
-              ) : null}
+              )}
 
               {children ? (
                 <Row className={`${blockClass}__available-row`}>
@@ -1173,7 +1230,7 @@ export let PageHeader = React.forwardRef(
                     `${blockClass}__button-set-menu-options`
                   )}
                   onWidthChange={handleWidthChange}
-                  buttons={pageActions as ButtonProps[]}
+                  buttons={pageActions as ButtonProps<React.ElementType>[]}
                   buttonSetOverflowLabel={
                     pageActionsOverflowLabel as NonNullable<ReactNode>
                   }
@@ -1237,6 +1294,7 @@ PageHeader.propTypes = {
   /**@ts-ignore */
   actionBarItems: PropTypes.arrayOf(
     PropTypes.shape({
+      /**@ts-ignore*/
       ...prepareProps(Button.propTypes, [
         'kind',
         'size',
@@ -1244,7 +1302,9 @@ PageHeader.propTypes = {
         'tooltipAlignment',
       ]),
       iconDescription: PropTypes.string.isRequired,
+      /**@ts-ignore*/
       onClick: Button.propTypes.onClick,
+      /**@ts-ignore*/
       renderIcon: Button.propTypes.renderIcon.isRequired,
     })
   ),
@@ -1430,8 +1490,10 @@ PageHeader.propTypes = {
   pageActions: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.shape({
+        /**@ts-ignore*/
         ...Button.propTypes,
         key: PropTypes.string.isRequired,
+        /**@ts-ignore*/
         kind: Button.propTypes.kind,
         label: PropTypes.node,
         onClick: PropTypes.func,
@@ -1512,6 +1574,7 @@ PageHeader.propTypes = {
    *    - editableLabel: label for edit required if onChange supplied
    *    - cancelDescription: label for edit cancel button
    *    - saveDescription: label for edit save button
+   *    - tooltipAlignment: position for tooltip displayed for large titles. Default to "bottom".
    * - Object containing user defined contents. These must fit within the area defined for the title in both main part of the header and the breadcrumb.
    *    - content: title or name of current location shown in main part of page header
    *    - breadcrumbContent: version of content used in the breadcrumb on scroll. If not supplied
@@ -1535,6 +1598,16 @@ PageHeader.propTypes = {
       cancelDescription: PropTypes.string, //.isRequired.if(editInPlaceRequired),
       editDescription: PropTypes.string, // .isRequired.if(editInPlaceRequired),
       saveDescription: PropTypes.string, //.isRequired.if(editInPlaceRequired),
+      tooltipAlignment: PropTypes.oneOf([
+        'top',
+        'top-left',
+        'top-right',
+        'bottom',
+        'bottom-left',
+        'bottom-right',
+        'left',
+        'right',
+      ]),
       // Update docgen if changed
     }),
     PropTypes.string,

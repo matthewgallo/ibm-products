@@ -30,7 +30,7 @@ import { SidePanel } from '../../../SidePanel';
 import { StoryDocsPage } from '../../../../global/js/utils/StoryDocsPage';
 
 export default {
-  title: 'IBM Products/Components/Datagrid/ClickableRow',
+  title: 'Deprecated/Datagrid/Datagrid/ClickableRow',
   component: Datagrid,
   tags: ['autodocs'],
   parameters: {
@@ -355,7 +355,7 @@ const ClickableRowWithPanel = ({ ...args }) => {
   const sidePanelRef = useRef(undefined);
 
   useEffect(() => {
-    if (openSidePanel) {
+    if (openSidePanel && sidePanelRef?.current) {
       const focusableElements = sidePanelRef.current.querySelectorAll(
         'button, [href], input, select, [tabindex]:not([tabindex="-1"])'
       );

@@ -30,7 +30,7 @@ const blockClass = `${pkg.prefix}--tag-set`;
 const blockClassModal = `${blockClass}-modal`;
 
 export default {
-  title: 'Experimental/Components/Tag overflow/TagOverflow',
+  title: 'Utils/Components/TagOverflow',
   component: TagOverflow,
   tags: ['autodocs'],
   parameters: {
@@ -75,6 +75,7 @@ export const TagsWithOverflowCount = Template.bind({});
 TagsWithOverflowCount.args = {
   containerWidth: 250,
   items: fiveTags,
+  onOverflowTagChange: (items) => console.log(items),
 };
 
 export const TagsWithTruncation = Template.bind({});

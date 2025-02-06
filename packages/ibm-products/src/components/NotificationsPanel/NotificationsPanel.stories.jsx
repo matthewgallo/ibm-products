@@ -16,6 +16,7 @@ import {
   HeaderGlobalAction,
 } from '@carbon/react';
 import { User, Notification } from '@carbon/react/icons';
+import { StoryDocsPage } from '../../global/js/utils/StoryDocsPage';
 import styles from './_storybook-styles.scss?inline';
 import uuidv4 from '../../global/js/utils/uuidv4';
 import { UnreadNotificationBell } from './preview-components/UnreadNotificationBell';
@@ -30,17 +31,17 @@ const storyBlockClass = `${pkg.prefix}--notifications-panel__story`;
 const blockClass = `${pkg.prefix}--notifications-panel`;
 
 export default {
-  title: 'IBM Products/Patterns/Notifications/NotificationsPanel',
+  title: 'IBM Products/Components/Notifications panel/NotificationsPanel',
   component: NotificationsPanel,
   tags: ['autodocs'],
   parameters: {
     styles,
     layout: 'fullscreen',
-    /*
-docs: {
-      page: mdx,
+    docs: {
+      page: () => (
+        <StoryDocsPage altGuidelinesHref="https://pages.github.ibm.com/carbon/ibm-products/components/notification-panel/usage/" />
+      ),
     },
-*/
   },
 };
 
@@ -85,7 +86,7 @@ const renderUIShellHeader = (
 );
 
 const Template = (args) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(args.open);
   const notificationTriggerRef = useRef(null);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
   const [notificationsData, setNotificationsData] = useState(data);
@@ -160,7 +161,7 @@ const Template = (args) => {
 };
 
 const EmptyNotifications = (args) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(args.open);
   return (
     <>
       {renderUIShellHeader(open, setOpen)}
@@ -176,6 +177,7 @@ const EmptyNotifications = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
+  open: true,
   onDoNotDisturbChange: action('Toggled to do not disturb'),
   onViewAllClick: action('Clicked view all button'),
   onSettingsClick: action('Clicked settings gear'),
@@ -184,6 +186,7 @@ Default.args = {
 export const EmptyState = EmptyNotifications.bind({});
 EmptyState.args = {
   data: [],
+  open: true,
   onDoNotDisturbChange: action('Toggled to do not disturb'),
   onViewAllClick: action('Clicked view all button'),
   onSettingsClick: action('Clicked settings gear'),
